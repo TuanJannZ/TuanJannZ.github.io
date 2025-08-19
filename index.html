@@ -1,163 +1,320 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jadwal Latihan Mingguan by JannZ</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Welcome</title>
   <style>
     body {
       margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(270deg, #000000, #0d1b2a, #1a1a40, #001f3f);
+      background-size: 600% 600%;
+      animation: aurora 20s ease infinite;
+      color: white;
       font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #eee;
+      overflow: hidden;
     }
-    header {
-      background-color: #1f1f1f;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 2px solid #3399ff;
+
+    @keyframes aurora {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-    header h1 {
-      margin: 0;
-      color: #3399ff;
-      font-size: 2rem;
+
+    /* Background bintang */
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 3s infinite alternate;
     }
-    header p {
-      color: #ccc;
-      margin: 5px 0 0;
+    @keyframes twinkle {
+      from { opacity: 0.2; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1.2); }
     }
-    header .author {
-      color: #3399ff;
+
+    /* Intro Section */
+    #intro {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent; /* biar aurora kelihatan */
+      flex-direction: row;
+      animation: fadeOut 1s ease forwards;
+      animation-delay: 8s;
+    }
+
+    #text {
+      font-size: 2.5rem;
       font-weight: bold;
-      margin-top: 8px;
     }
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 20px;
+
+    /* Glow Effect */
+    .glow {
+      color: #fff;
+      text-shadow: 0 0 5px #2e8bff,
+                   0 0 10px #2e8bff,
+                   0 0 20px #2e8bff,
+                   0 0 40px #2e8bff;
+      animation: glowAnim 2s infinite alternate;
     }
-    .day {
-      background-color: #1a1a1a;
-      border-left: 5px solid #3399ff;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      padding: 15px;
-      box-shadow: 0 2px 5px #000;
+
+    @keyframes glowAnim {
+      0% {
+        text-shadow: 0 0 5px #2e8bff,
+                     0 0 10px #2e8bff,
+                     0 0 20px #2e8bff,
+                     0 0 40px #2e8bff;
+      }
+      100% {
+        text-shadow: 0 0 10px #00ffff,
+                     0 0 20px #00ffff,
+                     0 0 30px #2e8bff,
+                     0 0 50px #2e8bff;
+      }
     }
-    .day h2 {
-      margin-top: 0;
-      color: #3399ff;
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
     }
-    .day ul {
-      padding-left: 20px;
-      margin: 10px 0 0;
-    }
-    .day p {
-      margin: 0;
-      color: #ccc;
-    }
-    footer {
+
+    /* Main Page */
+    #main {
+      opacity: 0;
+      transition: opacity 1.5s ease;
       text-align: center;
+      padding: 20px;
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: 8.5s;
+      max-width: 900px;
+      overflow-y: auto;
+      height: 100vh;
+    }
+    #main.show {
+      opacity: 1;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Jadwal */
+    .schedule {
+      margin-top: 20px;
       padding: 15px;
-      color: #666;
-      border-top: 1px solid #333;
-      margin-top: 40px;
-      font-size: 0.9rem;
+      border-radius: 10px;
+      display: block;
+      text-align: left;
+      overflow-y: auto;
+    }
+
+    .day {
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      transition: 0.3s;
+    }
+    .day:hover {
+      box-shadow: 0 0 15px #2e8bff, 0 0 30px #00ffff;
+      transform: scale(1.02);
+    }
+    .day h3 {
+      margin-bottom: 5px;
+      color: #2e8bff;
+      text-shadow: 0 0 5px #2e8bff;
+    }
+    .day ul li {
+      font-size: 1em;
+      margin: 3px 0;
+      transition: 0.3s;
+    }
+    .day ul li:hover {
+      color: #00ffff;
+      text-shadow: 0 0 8px #00ffff;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Jurnal Latihan Mingguan</h1>
-    <p>Jadwal dengan Jumat sebagai hari istirahat</p>
-    <div class="author">by JannZ</div>
-  </header>
-
-  <div class="container">
-
-    <div class="day">
-      <h2>Senin - Back, Traps, Bicep</h2>
-      <ul>
-        <li>Pull-up neutral grip (3 set failure)</li>
-        <li>Lat pulldown wide grip (3 set failure)</li>
-        <li>Single arm cable row (3 set failure)</li>
-        <li>Barbel/cable row (3 set failure)</li>
-        <li>Dumbbell shrug (3 set failure)</li>
-        <li>Bicep curl beban berat (3 set failure) + 1 set beban ringan (failure)</li>
-        <li>Hammer curl (3 set failure)</li>
-      </ul>
-    </div>
-
-    <div class="day">
-      <h2>Selasa - Shoulder, Tricep</h2>
-      <ul>
-        <li>Superset dumbbell shoulder press > front raise (10 reps x 3 set)</li>
-        <li>Superset lateral raise beban berat > beban ringan (3 set failure)</li>
-        <li>Upright row (3 set failure)</li>
-        <li>Dumbbell rear delt (10–12 reps x 3 set)</li>
-        <li>Reverse pec dec beban berat + 1 set beban ringan (failure)</li>
-        <li>Tricep pushdown beban berat + 1 set beban ringan (failure)</li>
-        <li>Reverse tricep pushdown beban berat + 1 set beban ringan (failure)</li>
-      </ul>
-    </div>
-
-    <div class="day">
-      <h2>Rabu - Chest, Bicep, Forearm</h2>
-      <ul>
-        <li>Incline bench press (8–10 reps x 3 set)</li>
-        <li>Chest press (3 set failure)</li>
-        <li>Chest fly beban berat + 1 set beban ringan (failure)</li>
-        <li>Superset incline dumbbell curl beban berat + 1 set beban ringan (failure)</li>
-        <li>Hammer curl (3 set failure)</li>
-        <li>Superset cable wrist curl, reverse cable wrist curl, reverse ez bar curl (3 set failure)</li>
-      </ul>
-    </div>
-
-    <div class="day">
-      <h2>Kamis - Back, Traps, Tricep</h2>
-      <ul>
-        <li>Pull-up neutral grip (3 set failure)</li>
-        <li>Lat pulldown wide grip (3 set failure)</li>
-        <li>Single arm cable row (3 set failure)</li>
-        <li>Barbel/cable row (3 set failure)</li>
-        <li>Dumbbell shrug (3 set failure)</li>
-        <li>Tricep pushdown beban berat + 1 set beban ringan (failure)</li>
-        <li>Reverse tricep pushdown beban berat + 1 set beban ringan (failure)</li>
-      </ul>
-    </div>
-
-    <div class="day">
-      <h2>Jumat - Rest Day</h2>
-      <p>Hari istirahat untuk pemulihan otot. Fokus pada nutrisi, tidur cukup, dan hidrasi yang baik.</p>
-    </div>
-
-    <div class="day">
-      <h2>Sabtu - Leg</h2>
-      <ul>
-        <li>Superset walking lunges > Romanian deadlift > calf raises (8–10 reps x 3 set)</li>
-        <li>Bulgarian split squat (8–10 reps x 3 set)</li>
-        <li>Squat (8–10 reps x 3 set)</li>
-        <li>Leg extension (3 set failure)</li>
-        <li>Leg press (10–12 reps x 3 set)</li>
-      </ul>
-    </div>
-
-    <div class="day">
-      <h2>Minggu - Chest, Shoulder</h2>
-      <ul>
-        <li>Incline bench press (8–10 reps x 3 set)</li>
-        <li>Chest press (10 reps x 3 set)</li>
-        <li>Chest fly (3 set failure)</li>
-        <li>Dumbbell shoulder press (10 reps x 3 set)</li>
-        <li>Lateral raise (3 set failure)</li>
-        <li>Reverse pec dec (3 set failure)</li>
-      </ul>
-    </div>
-
+  <!-- Intro Typing -->
+  <div id="intro">
+    <div id="text"></div>
   </div>
 
-  <footer>
-    &copy; 2025 Jadwal Latihan Mingguan - JannZ. Tetap semangat berlatih!
-  </footer>
+  <!-- Main Page -->
+  <div id="main">
+    <h1>Halaman Utama 🚀</h1>
+    <p>Selamat datang setelah animasi intro ✨</p>
+
+    <!-- Jadwal -->
+    <div class="schedule">
+      <h2>📅 Jadwal Latihan Mingguan</h2>
+
+      <div class="day">
+        <h3>📅 Senin – Back, Traps, Bicep + Stretch</h3>
+        <ul>
+          <li>Pull-up neutral grip (3 set failure)</li>
+          <li>Lat pulldown wide grip (3 set failure)</li>
+          <li>Single arm cable row (3 set failure)</li>
+          <li>Barbel/cable row (3 set failure)</li>
+          <li>Dumbbell shrug (3 set failure)</li>
+          <li>Bicep curl beban berat (3 set failure) + 1 set beban ringan (failure)</li>
+          <li>Hammer curl (3 set)</li>
+          <li>Plank hold (3 x 60 detik)</li>
+          <li>Hanging di pull-up bar (3 x 30–60 detik)</li>
+          <li>Cobra stretch (3 x 30 detik)</li>
+        </ul>
+      </div>
+
+      <div class="day">
+        <h3>📅 Selasa – Shoulder, Tricep + Stretch</h3>
+        <ul>
+          <li>Superset dumbbell shoulder press > front raise (10 reps x 3 set)</li>
+          <li>Superset lateral raise beban berat > beban ringan (3 set failure)</li>
+          <li>Upright row (3 set failure)</li>
+          <li>Dumbbell rear delt (10–12 reps x 3 set)</li>
+          <li>Reverse pec dec beban berat + 1 set beban ringan (failure)</li>
+          <li>Tricep pushdown beban berat + 1 set beban ringan (failure)</li>
+          <li>Reverse tricep pushdown beban berat + 1 set beban ringan (failure)</li>
+          <li>Push-up diamond (3 set failure)</li>
+          <li>Cat-cow stretch (3 x 30 detik)</li>
+        </ul>
+      </div>
+
+      <div class="day">
+        <h3>📅 Rabu – Chest, Bicep, Forearm + Stretch</h3>
+        <ul>
+          <li>Incline bench press (8–10 reps x 3 set)</li>
+          <li>Chest press (3 set failure)</li>
+          <li>Chest fly beban berat + 1 set beban ringan (failure)</li>
+          <li>Superset incline dumbbell curl beban berat + 1 set beban ringan (failure)</li>
+          <li>Hammer curl (3 set failure)</li>
+          <li>Superset cable wrist curl, reverse cable wrist curl, reverse ez bar curl (3 set failure)</li>
+          <li>Hanging leg raises (3 set x 12 reps)</li>
+          <li>Side stretch (3 x 30 detik per sisi)</li>
+        </ul>
+      </div>
+
+      <div class="day">
+        <h3>📅 Kamis – Back, Traps, Tricep + Stretch</h3>
+        <ul>
+          <li>Pull-up neutral grip (3 set failure)</li>
+          <li>Lat pulldown wide grip (3 set failure)</li>
+          <li>Single arm cable row (3 set failure)</li>
+          <li>Barbel/cable row (3 set failure)</li>
+          <li>Dumbbell shrug (3 set failure)</li>
+          <li>Tricep pushdown beban berat + 1 set beban ringan (failure)</li>
+          <li>Reverse tricep pushdown beban berat + 1 set beban ringan (failure)</li>
+          <li>Face pull (3 set x 12 reps)</li>
+          <li>Bridge pose (3 x 15 reps)</li>
+        </ul>
+      </div>
+
+      <div class="day">
+        <h3>📅 Jumat – Rest Day</h3>
+        <p>Hari istirahat untuk pemulihan otot. Fokus pada nutrisi, tidur cukup, dan hidrasi yang baik. Opsional: jalan santai 20–30 menit atau stretching ringan (Downward dog, Cobra stretch).</p>
+      </div>
+
+      <div class="day">
+        <h3>📅 Sabtu – Leg + Stretch</h3>
+        <ul>
+          <li>Superset walking lunges > Romanian deadlift > calf raises (8–10 reps x 3 set)</li>
+          <li>Bulgarian split squat (8–10 reps x 3 set)</li>
+          <li>Squat (8–10 reps x 3 set)</li>
+          <li>Leg extension (3 set failure)</li>
+          <li>Leg press (10–12 reps x 3 set)</li>
+          <li>Hip thrust (10–12 reps x 3 set)</li>
+          <li>Plank side (3 x 45 detik per sisi)</li>
+          <li>Skipping (3 x 1 menit)</li>
+        </ul>
+      </div>
+
+      <div class="day">
+        <h3>📅 Minggu – Chest, Shoulder + Stretch</h3>
+        <ul>
+          <li>Incline bench press (8–10 reps x 3 set)</li>
+          <li>Chest press (10 reps x 3 set)</li>
+          <li>Chest fly (3 set failure)</li>
+          <li>Dumbbell shoulder press (10 reps x 3 set)</li>
+          <li>Lateral raise (3 set failure)</li>
+          <li>Reverse pec dec (3 set failure)</li>
+          <li>Mountain climbers (3 x 40 detik)</li>
+          <li>Downward dog stretch (3 x 30 detik)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const texts = ["Tuan JannZ", "Welcome"];
+    let textIndex = 0;
+    let charIndex = 0;
+    const textElement = document.getElementById("text");
+
+    function renderText(str, length) {
+      if (str === "Tuan JannZ") {
+        if (length <= 5) {
+          return str.substring(0, length);
+        } else {
+          let before = "Tuan ";
+          let after = str.substring(5, length);
+          return before + "<span class='blue glow'>" + after + "</span>";
+        }
+      } else if (str === "Welcome") {
+        return "<span class='glow'>" + str.substring(0, length) + "</span>";
+      }
+      return str.substring(0, length);
+    }
+
+    function type() {
+      if (charIndex < texts[textIndex].length) {
+        charIndex++;
+        textElement.innerHTML = renderText(texts[textIndex], charIndex);
+        setTimeout(type, 150);
+      } else {
+        if (textIndex === 0) {
+          setTimeout(erase, 1200); 
+        }
+      }
+    }
+
+    function erase() {
+      if (charIndex > 0) {
+        charIndex--;
+        textElement.innerHTML = renderText(texts[textIndex], charIndex);
+        setTimeout(erase, 80);
+      } else {
+        textIndex++;
+        setTimeout(type, 300);
+      }
+    }
+
+    type();
+
+    // Setelah selesai intro → tampilkan main page
+    setTimeout(() => {
+      document.getElementById("main").classList.add("show");
+    }, 8000);
+
+    // Bintang random
+    for (let i = 0; i < 50; i++) {
+      let star = document.createElement("div");
+      star.className = "star";
+      star.style.width = star.style.height = Math.random() * 3 + "px";
+      star.style.top = Math.random() * window.innerHeight + "px";
+      star.style.left = Math.random() * window.innerWidth + "px";
+      star.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(star);
+    }
+  </script>
 </body>
 </html>
