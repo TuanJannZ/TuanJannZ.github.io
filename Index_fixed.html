@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Fitness Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(270deg, #000000, #0d1b2a, #1a1a40, #001f3f);
+      background-size: 600% 600%;
+      animation: aurora 20s ease infinite;
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    @keyframes aurora {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Background bintang */
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 3s infinite alternate;
+    }
+    @keyframes twinkle {
+      from { opacity: 0.2; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Intro Section */
+    #intro {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: transparent;
+      flex-direction: row;
+      animation: fadeOut 1s ease forwards;
+      animation-delay: 8s;
+    }
+
+    #text {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    /* Glow Effect */
+    .glow {
+      color: #fff;
+      text-shadow: 0 0 5px #2e8bff,
+                   0 0 10px #2e8bff,
+                   0 0 20px #2e8bff,
+                   0 0 40px #2e8bff;
+      animation: glowAnim 2s infinite alternate;
+    }
+
+    @keyframes glowAnim {
+      0% {
+        text-shadow: 0 0 5px #2e8bff,
+                     0 0 10px #2e8bff,
+                     0 0 20px #2e8bff,
+                     0 0 40px #2e8bff;
+      }
+      100% {
+        text-shadow: 0 0 10px #00ffff,
+                     0 0 20px #00ffff,
+                     0 0 30px #2e8bff,
+                     0 0 50px #2e8bff;
+      }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    /* Main Page */
+    #main {
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      text-align: center;
+      padding: 20px;
+      animation: fadeInUp 1s ease forwards;
+      animation-delay: 8.5s;
+      max-width: 900px;
+      overflow-y: auto;
+      height: 100vh;
+    }
+    #main.show {
+      opacity: 1;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stats Dashboard */
+    .stats-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: rgba(46, 139, 255, 0.1);
+      border: 1px solid rgba(46, 139, 255, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 0 20px rgba(46, 139, 255, 0.4);
+      transform: translateY(-5px);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    /* Timer Widget */
+    .timer-widget {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #2e8bff;
+      border-radius: 15px;
+      padding: 15px;
+      min-width: 200px;
+      text-align: center;
+      z-index: 1000;
+      display: none;
+    }
+
+    .timer-display {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-bottom: 10px;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .timer-btn {
+      background: #2e8bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 15px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .timer-btn:hover {
+      background: #00ffff;
+      box-shadow: 0 0 15px #00ffff;
+    }
+
+    .timer-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2e8bff, #00ffff);
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+
+    /* Schedule */
+    .schedule {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      display: block;
+      text-align: left;
+      overflow-y: auto;
+    }
+
+    .day {
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      transition: 0.3s;
+      position: relative;
+    }
+
+    .day:hover {
+      box-shadow: 0 0 15px #2e8bff, 0 0 30px #00ffff;
+      transform: scale(1.02);
+    }
+
+    .day h3 {
+      margin-bottom: 10px;
+      color: #2e8bff;
+      text-shadow: 0 0 5px #2e8bff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-progress {
+      font-size: 0.9rem;
+      color: #00ffff;
+    }
+
+    /* Exercise List */
+    .exercise-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .exercise-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .exercise-item:hover {
+      background: rgba(46, 139, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .exercise-checkbox {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #2e8bff;
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .exercise-checkbox:checked {
+      background: #00ffff;
+      border-color: #00ffff;
+    }
+
+    .exercise-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      top: -2px;
+      left: 2px;
+      color: #000;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .exercise-text {
+      flex: 1;
+      transition: all 0.3s ease;
+    }
+
+    .exercise-item.completed .exercise-text {
+      text-decoration: line-through;
+      opacity: 0.6;
+      color: #00ffff;
+    }
+
+    .timer-trigger {
+      background: rgba(46, 139, 255, 0.2);
+      border: 1px solid #2e8bff;
+      color: #00ffff;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .timer-trigger:hover {
+      background: #2e8bff;
+      color: white;
+      box-shadow: 0 0 10px #2e8bff;
+    }
+
+    /* Reset Button */
+    .reset-btn {
+      background: rgba(255, 0, 0, 0.1);
+      border: 2px solid #ff4444;
+      color: #ff4444;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 20px 0;
+      transition: all 0.3s ease;
+    }
+
+    .reset-btn:hover {
+      background: #ff4444;
+      color: white;
+      box-shadow: 0 0 15px #ff4444;
+    }
+
+    /* Success Animation */
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); box-shadow: 0 0 20px #00ffff; }
+      100% { transform: scale(1); }
+    }
+
+    .success-animation {
+      animation: successPulse 0.6s ease;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .timer-widget {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        position: fixed;
+      }
+      
+      .stats-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      #main {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Intro Typing -->
+  <div id="intro">
+    <div id="text"></div>
+  </div>
+
+  <!-- Timer Widget -->
+  <div class="timer-widget" id="timerWidget">
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-controls">
+      <button class="timer-btn" id="startTimer">Start</button>
+      <button class="timer-btn" id="pauseTimer" disabled>Pause</button>
+      <button class="timer-btn" id="resetTimer">Reset</button>
+      <button class="timer-btn" id="closeTimer">Close</button>
+    </div>
+    <div class="timer-controls" style="margin-top: 10px;">
+      <button class="timer-btn" onclick="setTimer(30)">30s</button>
+      <button class="timer-btn" onclick="setTimer(60)">1m</button>
+      <button class="timer-btn" onclick="setTimer(90)">1.5m</button>
+      <button class="timer-btn" onclick="setTimer(180)">3m</button>
+    </div>
+  </div>
+
+  <!-- Main Page -->
+  <div id="main">
+    <h1>Halaman Utama 🚀</h1>
+    <p>Selamat datang setelah animasi intro ✨</p>
+
+    <!-- Stats Dashboard -->
+    <div class="stats-dashboard">
+      <div class="stat-card">
+        <div class="stat-number" id="todayProgress">0</div>
+        <div class="stat-label">Exercises Completed Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="weeklyProgress">0%</div>
+        <div class="stat-label">Weekly Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="currentStreak">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalCompleted">0</div>
+        <div class="stat-label">Total Exercises</div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="weeklyProgressBar"></div>
+    </div>
+
+    <button class="reset-btn" onclick="resetAllProgress()">🔄 Reset All Progress</button>
+
+    <!-- Jadwal -->
+    <div class="schedule">
+      <h2>📅 Jadwal Latihan Mingguan</h2>
+
+      <div class="day" data-day="monday">
+        <h3>
+          📅 Senin – Back, Traps, Bicep + Stretch
+          <span class="day-progress" id="monday-progress">0/10</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-1">
+            <span class="exercise-text">Pull-up neutral grip (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-2">
+            <span class="exercise-text">Lat pulldown wide grip (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-3">
+            <span class="exercise-text">Single arm cable row (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-4">
+            <span class="exercise-text">Barbel/cable row (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-5">
+            <span class="exercise-text">Dumbbell shrug (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-6">
+            <span class="exercise-text">Bicep curl beban berat (3 set failure) + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-7">
+            <span class="exercise-text">Hammer curl (3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-8">
+            <span class="exercise-text">Plank hold (3 x 60 detik)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-9">
+            <span class="exercise-text">Hanging di pull-up bar (3 x 30–60 detik)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="monday-10">
+            <span class="exercise-text">Cobra stretch (3 x 30 detik)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day" data-day="tuesday">
+        <h3>
+          📅 Selasa – Shoulder, Tricep + Stretch
+          <span class="day-progress" id="tuesday-progress">0/9</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-1">
+            <span class="exercise-text">Superset dumbbell shoulder press > front raise (10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-2">
+            <span class="exercise-text">Superset lateral raise beban berat > beban ringan (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-3">
+            <span class="exercise-text">Upright row (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-4">
+            <span class="exercise-text">Dumbbell rear delt (10–12 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-5">
+            <span class="exercise-text">Reverse pec dec beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-6">
+            <span class="exercise-text">Tricep pushdown beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-7">
+            <span class="exercise-text">Reverse tricep pushdown beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-8">
+            <span class="exercise-text">Push-up diamond (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-9">
+            <span class="exercise-text">Cat-cow stretch (3 x 30 detik)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day" data-day="wednesday">
+        <h3>
+          📅 Rabu – Chest, Bicep, Forearm + Stretch
+          <span class="day-progress" id="wednesday-progress">0/8</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-1">
+            <span class="exercise-text">Incline bench press (8–10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-2">
+            <span class="exercise-text">Chest press (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-3">
+            <span class="exercise-text">Chest fly beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-4">
+            <span class="exercise-text">Superset incline dumbbell curl beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-5">
+            <span class="exercise-text">Hammer curl (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-6">
+            <span class="exercise-text">Superset cable wrist curl, reverse cable wrist curl, reverse ez bar curl (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-7">
+            <span class="exercise-text">Hanging leg raises (3 set x 12 reps)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-8">
+            <span class="exercise-text">Side stretch (3 x 30 detik per sisi)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day" data-day="thursday">
+        <h3>
+          📅 Kamis – Back, Traps, Tricep + Stretch
+          <span class="day-progress" id="thursday-progress">0/9</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-1">
+            <span class="exercise-text">Pull-up neutral grip (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-2">
+            <span class="exercise-text">Lat pulldown wide grip (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-3">
+            <span class="exercise-text">Single arm cable row (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-4">
+            <span class="exercise-text">Barbel/cable row (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-5">
+            <span class="exercise-text">Dumbbell shrug (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-6">
+            <span class="exercise-text">Tricep pushdown beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-7">
+            <span class="exercise-text">Reverse tricep pushdown beban berat + 1 set beban ringan (failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-8">
+            <span class="exercise-text">Face pull (3 set x 12 reps)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="thursday-9">
+            <span class="exercise-text">Bridge pose (3 x 15 reps)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day" data-day="friday">
+        <h3>
+          📅 Jumat – Rest Day
+          <span class="day-progress" id="friday-progress">0/1</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="friday-1">
+            <span class="exercise-text">Hari istirahat - Fokus pada nutrisi, tidur cukup, dan hidrasi yang baik. Opsional: jalan santai 20–30 menit atau stretching ringan (Downward dog, Cobra stretch).</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day" data-day="saturday">
+        <h3>
+          📅 Sabtu – Leg + Stretch
+          <span class="day-progress" id="saturday-progress">0/8</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-1">
+            <span class="exercise-text">Superset walking lunges > Romanian deadlift > calf raises (8–10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-2">
+            <span class="exercise-text">Bulgarian split squat (8–10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-3">
+            <span class="exercise-text">Squat (8–10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-4">
+            <span class="exercise-text">Leg extension (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-5">
+            <span class="exercise-text">Leg press (10–12 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-6">
+            <span class="exercise-text">Hip thrust (10–12 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-7">
+            <span class="exercise-text">Plank side (3 x 45 detik per sisi)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="saturday-8">
+            <span class="exercise-text">Skipping (3 x 1 menit)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="day" data-day="sunday">
+        <h3>
+          📅 Minggu – Chest, Shoulder + Stretch
+          <span class="day-progress" id="sunday-progress">0/8</span>
+        </h3>
+        <ul class="exercise-list">
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-1">
+            <span class="exercise-text">Incline bench press (8–10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-2">
+            <span class="exercise-text">Chest press (10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-3">
+            <span class="exercise-text">Chest fly (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-4">
+            <span class="exercise-text">Dumbbell shoulder press (10 reps x 3 set)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-5">
+            <span class="exercise-text">Lateral raise (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-6">
+            <span class="exercise-text">Reverse pec dec (3 set failure)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-7">
+            <span class="exercise-text">Mountain climbers (3 x 40 detik)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+          <li class="exercise-item">
+            <input type="checkbox" class="exercise-checkbox" data-exercise="sunday-8">
+            <span class="exercise-text">Downward dog stretch (3 x 30 detik)</span>
+            <button class="timer-trigger" onclick="showTimer()">⏱️</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global Variables
+    let timerInterval;
+    let timerSeconds = 0;
+    let isTimerRunning = false;
+    let progressData = {};
+
+    // Initialize progress data from memory (session-based)
+    function initializeProgress() {
+      // Since we can't use localStorage in Claude, we'll use session memory
+      const savedProgress = localStorage.getItem('fitnessProgress');
+      if (savedProgress) {
+        progressData = JSON.parse(savedProgress);
+      } else {
+        progressData = {
+          exercises: {},
+          lastUpdate: new Date().toDateString(),
+          streak: 0,
+          totalCompleted: 0
+        };
+      }
+      updateAllStats();
+    }
+
+    // Save progress to session storage
+    function saveProgress() {
+      localStorage.setItem('fitnessProgress', JSON.stringify(progressData));
+    }
+
+    // Typing Animation (original code)
+    const texts = ["Tuan JannZ", "Welcome"];
+    let textIndex = 0;
+    let charIndex = 0;
+    const textElement = document.getElementById("text");
+
+    function renderText(str, length) {
+      if (str === "Tuan JannZ") {
+        if (length <= 5) {
+          return str.substring(0, length);
+        } else {
+          let before = "Tuan ";
+          let after = str.substring(5, length);
+          return before + "<span class='blue glow'>" + after + "</span>";
+        }
+      } else if (str === "Welcome") {
+        return "<span class='glow'>" + str.substring(0, length) + "</span>";
+      }
+      return str.substring(0, length);
+    }
+
+    function type() {
+      if (charIndex < texts[textIndex].length) {
+        charIndex++;
+        textElement.innerHTML = renderText(texts[textIndex], charIndex);
+        setTimeout(type, 150);
+      } else {
+        if (textIndex === 0) {
+          setTimeout(erase, 1200); 
+        }
+      }
+    }
+
+    function erase() {
+      if (charIndex > 0) {
+        charIndex--;
+        textElement.innerHTML = renderText(texts[textIndex], charIndex);
+        setTimeout(erase, 80);
+      } else {
+        textIndex++;
+        setTimeout(type, 300);
+      }
+    }
+
+    // Timer Functions
+    function showTimer() {
+      document.getElementById('timerWidget').style.display = 'block';
+    }
+
+    function hideTimer() {
+      document.getElementById('timerWidget').style.display = 'none';
+      resetTimer();
+    }
+
+    function setTimer(seconds) {
+      timerSeconds = seconds;
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timerSeconds / 60);
+      const seconds = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+      if (timerSeconds <= 0) return;
+      
+      isTimerRunning = true;
+      document.getElementById('startTimer').disabled = true;
+      document.getElementById('pauseTimer').disabled = false;
+      
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        updateTimerDisplay();
+        
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          isTimerRunning = false;
+          document.getElementById('startTimer').disabled = false;
+          document.getElementById('pauseTimer').disabled = true;
+          
+          // Timer completed notification
+          if (Notification.permission === 'granted') {
+            new Notification('Timer Completed!', {
+              body: 'Your workout timer has finished. Time for the next set!',
+              icon: '🏋️'
+            });
+          }
+          
+          // Visual notification
+          document.getElementById('timerWidget').classList.add('success-animation');
+          setTimeout(() => {
+            document.getElementById('timerWidget').classList.remove('success-animation');
+          }, 600);
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      document.getElementById('startTimer').disabled = false;
+      document.getElementById('pauseTimer').disabled = true;
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerSeconds = 0;
+      isTimerRunning = false;
+      document.getElementById('startTimer').disabled = false;
+      document.getElementById('pauseTimer').disabled = true;
+      updateTimerDisplay();
+    }
+
+    // Progress Tracking Functions
+    function updateDayProgress(day) {
+      const dayElement = document.querySelector(`[data-day="${day}"]`);
+      const checkboxes = dayElement.querySelectorAll('.exercise-checkbox');
+      const completed = dayElement.querySelectorAll('.exercise-checkbox:checked').length;
+      const total = checkboxes.length;
+      
+      document.getElementById(`${day}-progress`).textContent = `${completed}/${total}`;
+      return { completed, total };
+    }
+
+    function updateAllStats() {
+      let totalCompleted = 0;
+      let totalExercises = 0;
+      let todayCompleted = 0;
+      
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const todayName = days[today === 0 ? 6 : today - 1]; // Convert to our naming
+      
+      days.forEach(day => {
+        const progress = updateDayProgress(day);
+        totalCompleted += progress.completed;
+        totalExercises += progress.total;
+        
+        if (day === todayName) {
+          todayCompleted = progress.completed;
+        }
+      });
+      
+      // Update stats display
+      document.getElementById('todayProgress').textContent = todayCompleted;
+      document.getElementById('totalCompleted').textContent = totalCompleted;
+      
+      const weeklyProgress = Math.round((totalCompleted / totalExercises) * 100);
+      document.getElementById('weeklyProgress').textContent = `${weeklyProgress}%`;
+      document.getElementById('weeklyProgressBar').style.width = `${weeklyProgress}%`;
+      
+      // Calculate streak (simplified - just check if today has any completed)
+      const streak = todayCompleted > 0 ? Math.max(1, progressData.streak || 0) : 0;
+      document.getElementById('currentStreak').textContent = streak;
+      
+      progressData.totalCompleted = totalCompleted;
+      progressData.streak = streak;
+      saveProgress();
+    }
+
+    function resetAllProgress() {
+      if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+        // Uncheck all checkboxes
+        document.querySelectorAll('.exercise-checkbox').forEach(checkbox => {
+          checkbox.checked = false;
+          checkbox.closest('.exercise-item').classList.remove('completed');
+        });
+        
+        // Reset progress data
+        progressData = {
+          exercises: {},
+          lastUpdate: new Date().toDateString(),
+          streak: 0,
+          totalCompleted: 0
+        };
+        
+        saveProgress();
+        updateAllStats();
+        
+        // Show success message
+        alert('All progress has been reset! 🔄');
+      }
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize progress tracking
+      initializeProgress();
+      
+      // Add event listeners for checkboxes
+      document.querySelectorAll('.exercise-checkbox').forEach(checkbox => {
+        // Load saved state
+        if (progressData.exercises[checkbox.dataset.exercise]) {
+          checkbox.checked = true;
+          checkbox.closest('.exercise-item').classList.add('completed');
+        }
+        
+        checkbox.addEventListener('change', function() {
+          const exerciseItem = this.closest('.exercise-item');
+          
+          if (this.checked) {
+            exerciseItem.classList.add('completed');
+            exerciseItem.classList.add('success-animation');
+            progressData.exercises[this.dataset.exercise] = true;
+            
+            setTimeout(() => {
+              exerciseItem.classList.remove('success-animation');
+            }, 600);
+          } else {
+            exerciseItem.classList.remove('completed');
+            delete progressData.exercises[this.dataset.exercise];
+          }
+          
+          updateAllStats();
+        });
+      });
+      
+      // Timer event listeners
+      document.getElementById('startTimer').addEventListener('click', startTimer);
+      document.getElementById('pauseTimer').addEventListener('click', pauseTimer);
+      document.getElementById('resetTimer').addEventListener('click', resetTimer);
+      document.getElementById('closeTimer').addEventListener('click', hideTimer);
+      
+      // Request notification permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    });
+
+    // Start typing animation
+    type();
+
+    // Show main page after intro
+    setTimeout(() => {
+      document.getElementById("main").classList.add("show");
+    }, 8000);
+
+    // Generate random stars (original code)
+    for (let i = 0; i < 50; i++) {
+      let star = document.createElement("div");
+      star.className = "star";
+      star.style.width = star.style.height = Math.random() * 3 + "px";
+      star.style.top = Math.random() * window.innerHeight + "px";
+      star.style.left = Math.random() * window.innerWidth + "px";
+      star.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      document.body.appendChild(star);
+    }
+  </script>
+</body>
+</html>
