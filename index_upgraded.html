@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JannZ Sync — Fitness Tracker Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#16a34a">
+  <style>
+    :root{--pri:#2e8bff;--sec:#00ffff;--bg:#0b1220;--card:rgba(255,255,255,.05)}
+    *{box-sizing:border-box}
+    body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;background:linear-gradient(270deg,#000,#0d1b2a,#1a1a40,#001f3f);background-size:600% 600%;animation:aurora 20s ease infinite;color:#e5e7eb;font-family:Inter,system-ui,Arial,sans-serif;overflow:hidden}
+    @keyframes aurora{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    #intro{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;animation:fadeOut 1s ease forwards;animation-delay:8s}
+    #text{font-size:2.4rem;font-weight:800;letter-spacing:.3px}
+    .glow{color:#fff;text-shadow:0 0 6px var(--pri),0 0 14px var(--pri),0 0 28px var(--pri)}
+    @keyframes fadeOut{to{opacity:0;visibility:hidden}}
+    #main{opacity:0;transition:opacity 1.5s ease;padding:20px;animation:fadeInUp 1s ease forwards;animation-delay:8.5s;max-width:1100px;overflow-y:auto;height:100vh;width:100%}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+    h1{margin:0 0 6px}
+    p.lead{margin:0 0 16px;color:#cbd5e1}
+    .stats-dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+    .stat-card{background:rgba(46,139,255,.08);border:1px solid rgba(46,139,255,.25);border-radius:12px;padding:12px;text-align:center;transition:.25s}
+    .stat-card:hover{transform:translateY(-4px);box-shadow:0 0 16px rgba(46,139,255,.35)}
+    .stat-number{font-size:1.9rem;font-weight:800;color:var(--sec);text-shadow:0 0 10px var(--sec)}
+    .stat-label{font-size:.9rem;color:#cbd5e1}
+    .progress-bar{width:100%;height:8px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin:8px 0 16px}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--pri),var(--sec));width:0}
+    .section-card{background:var(--card);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px;margin:12px 0}
+    .charts-section h2,.section-card h2{margin:0 0 8px}
+    .chart-tabs{display:flex;gap:8px;justify-content:center;margin:8px 0 12px}
+    .chart-tab{background:rgba(46,139,255,.2);border:1px solid var(--pri);color:var(--sec);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.9rem;transition:.2s}
+    .chart-tab.active,.timer-btn.primary{background:linear-gradient(90deg,var(--pri),var(--sec));color:#001014;border:none}
+    .chart-canvas{width:100%;max-width:900px;height:220px;display:block;margin:0 auto}
+    .schedule{margin-top:8px}
+    .day{margin-bottom:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.04);transition:.25s}
+    .day:hover{box-shadow:0 0 14px var(--pri, #2e8bff);transform:scale(1.01)}
+    .day h3{margin:0 0 10px;color:var(--pri);display:flex;justify-content:space-between;align-items:center}
+    .exercise-list{list-style:none;margin:0;padding:0}
+    .exercise-item{display:flex;align-items:center;gap:10px;margin:7px 0;padding:8px;border-radius:8px;background:rgba(255,255,255,.03);transition:.2s}
+    .exercise-item.completed{opacity:.85}
+    .exercise-checkbox{appearance:none;width:20px;height:20px;border:2px solid var(--pri);border-radius:4px;cursor:pointer;position:relative}
+    .exercise-checkbox:checked{background:var(--sec);border-color:var(--sec)}
+    .exercise-checkbox:checked::after{content:'✓';position:absolute;top:-2px;left:2px;color:#001014;font-weight:800;font-size:14px}
+    .exercise-text{flex:1}
+    .timer-trigger{background:rgba(46,139,255,.18);border:1px solid var(--pri);color:var(--sec);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:.8rem}
+    .reset-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+    .reset-btn{background:transparent;border:2px solid #ef4444;color:#ef4444;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:600}
+    .timer-widget{position:fixed;top:16px;right:16px;background:#000000e6;border:2px solid var(--pri);border-radius:16px;padding:14px;min-width:220px;text-align:center;z-index:1000;display:none}
+    .timer-display{font-size:2rem;font-weight:900;color:var(--sec);margin-bottom:8px}
+    .timer-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .timer-btn{background:rgba(46,139,255,.25);color:white;border:1px solid var(--pri);border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600}
+    .timer-btn:disabled{opacity:.5;cursor:not-allowed}
+    .goal-label{font-size:.85rem;color:#22c55e;font-weight:700}
+    .goal-achieved{animation:pop .6s ease;border:2px solid #22c55e !important}
+    @keyframes pop{50%{transform:scale(1.02);box-shadow:0 0 18px #22c55e88}}
+    .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+    .badge{border:1px solid #ffffff22;border-radius:12px;padding:10px;background:rgba(255,255,255,.03)}
+    .badge.locked{opacity:.65}
+    .badge .progress{height:8px;background:#0b1220;border-radius:999px;overflow:hidden;margin-top:6px}
+    .badge .progress>div{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a)}
+    .journal-item{border:1px solid #ffffff22;border-radius:10px;padding:10px;background:rgba(255,255,255,.03);margin:6px 0}
+    .journal-item h4{margin:0 0 4px}
+    @media (max-width:768px){#main{padding:12px} .stats-dashboard{grid-template-columns:repeat(2,1fr)} .timer-widget{left:10px;right:10px}}
+  </style>
+</head>
+<body>
+  <div id="intro"><div id="text"></div></div>
+
+  <!-- Timer Floating Widget -->
+  <div class="timer-widget" id="timerWidget">
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-controls">
+      <button class="timer-btn primary" id="startTimer">Start</button>
+      <button class="timer-btn" id="pauseTimer" disabled>Pause</button>
+      <button class="timer-btn" id="resetTimer">Reset</button>
+      <button class="timer-btn" id="closeTimer">Close</button>
+    </div>
+    <div class="timer-controls" style="margin-top:8px">
+      <button class="timer-btn" data-quick="30">30s</button>
+      <button class="timer-btn" data-quick="60">1m</button>
+      <button class="timer-btn" data-quick="90">1.5m</button>
+      <button class="timer-btn" data-quick="180">3m</button>
+    </div>
+  </div>
+
+  <div id="main">
+    <h1>Silent Proses</h1>
+    <p class="lead">berproseslah dengan diam, kejutan lebih menarik daripada omong kosong.</p>
+
+    <!-- Stats -->
+    <div class="stats-dashboard">
+      <div class="stat-card" id="dailyGoalCard">
+        <div class="stat-number" id="todayProgress">0</div>
+        <div class="stat-label">Exercises Completed Today</div>
+        <div class="goal-label" id="dailyGoalLabel"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="weeklyProgress">0%</div>
+        <div class="stat-label">Weekly Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="currentStreak">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalCompleted">0</div>
+        <div class="stat-label">Total Exercises</div>
+      </div>
+      <div class="stat-card" id="weeklyGoalCard">
+        <div class="stat-number" id="weeklyGoalStatus">0/25</div>
+        <div class="stat-label">Weekly Goal</div>
+        <div class="goal-label" id="weeklyGoalLabel"></div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="weeklyProgressBar"></div></div>
+
+    <!-- Charts -->
+    <section class="section-card charts-section">
+      <h2>📈 Progress Charts</h2>
+      <div class="chart-tabs">
+        <button class="chart-tab active" id="tabWeekly">Weekly</button>
+        <button class="chart-tab" id="tabMonthly">Monthly</button>
+      </div>
+      <canvas class="chart-canvas" id="weeklyCanvas"></canvas>
+      <canvas class="chart-canvas" id="monthlyCanvas" style="display:none"></canvas>
+    </section>
+
+    <!-- Export/Import/Reset -->
+    <div class="reset-row">
+      <button class="reset-btn" style="border-color:#22c55e;color:#22c55e" id="exportBtn">⬇️ Export Progress</button>
+      <label class="reset-btn" style="border-color:#f59e0b;color:#f59e0b; cursor:pointer">
+        ⬆️ Import Progress
+        <input id="importInput" type="file" accept="application/json" style="display:none">
+      </label>
+      <button class="reset-btn" id="resetAllBtn">🔄 Reset All Progress</button>
+    </div>
+
+    <!-- Achievements -->
+    <section class="section-card" id="achievements">
+      <h2>🏆 Achievements</h2>
+      <div id="badge-list" class="badges"></div>
+    </section>
+
+    <!-- Reminder -->
+    <section class="section-card" id="reminder">
+      <h2>🔔 Reminder Latihan</h2>
+      <label>Jam Pengingat: <input type="time" id="reminderTime" value="07:00"></label>
+      <button id="enableNotifBtn" class="timer-btn" style="margin-left:8px">Aktifkan Notifikasi</button>
+      <p id="reminderStatus" style="font-size:.9rem;color:#cbd5e1;margin-top:6px"></p>
+    </section>
+
+    <!-- Journal -->
+    <section class="section-card" id="journal">
+      <h2>📖 Journal Latihan</h2>
+      <form id="journalForm">
+        <input type="date" id="journalDate" required>
+        <textarea id="journalText" rows="3" placeholder="Tulis kesan latihan hari ini..."></textarea>
+        <div style="display:flex; gap:8px; justify-content:flex-end">
+          <button type="submit" class="timer-btn primary">Simpan</button>
+        </div>
+      </form>
+      <div id="journalList"></div>
+    </section>
+
+    <!-- Music -->
+    <section class="section-card" id="music-timer">
+      <h2>🎵 Music & ⏱️ Timer</h2>
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DX70RN3TfWWJh" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </section>
+
+    <!-- Jadwal Mingguan -->
+    <div class="schedule" id="scheduleRoot">
+      <h2>📅 Jadwal Latihan Mingguan</h2>
+      <!-- Senin -->
+      <div class="day" data-day="monday">
+        <h3>📅 Senin – Back, Traps, Bicep + Stretch <span class="day-progress" id="monday-progress">0/10</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-1"><span class="exercise-text">Pull-up neutral grip (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-2"><span class="exercise-text">Lat pulldown wide grip (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-3"><span class="exercise-text">Single arm cable row (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-4"><span class="exercise-text">Barbel/cable row (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-5"><span class="exercise-text">Dumbbell shrug (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-6"><span class="exercise-text">Bicep curl berat (3 set) + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-7"><span class="exercise-text">Hammer curl (3 set)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-8"><span class="exercise-text">Plank hold (3 × 60 detik)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-9"><span class="exercise-text">Hanging di pull-up bar (3 × 30–60 detik)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="monday-10"><span class="exercise-text">Cobra stretch (3 × 30 detik)</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+      <!-- Selasa -->
+      <div class="day" data-day="tuesday">
+        <h3>📅 Selasa – Shoulder, Tricep + Stretch <span class="day-progress" id="tuesday-progress">0/9</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-1"><span class="exercise-text">Superset shoulder press > front raise (10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-2"><span class="exercise-text">Superset lateral raise berat > ringan (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-3"><span class="exercise-text">Upright row (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-4"><span class="exercise-text">Dumbbell rear delt (10–12 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-5"><span class="exercise-text">Reverse pec dec + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-6"><span class="exercise-text">Tricep pushdown berat + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-7"><span class="exercise-text">Reverse tricep pushdown berat + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-8"><span class="exercise-text">Push-up diamond (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="tuesday-9"><span class="exercise-text">Cat-cow stretch (3 × 30 detik)</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+      <!-- Rabu -->
+      <div class="day" data-day="wednesday">
+        <h3>📅 Rabu – Chest, Bicep, Forearm + Stretch <span class="day-progress" id="wednesday-progress">0/8</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-1"><span class="exercise-text">Incline bench press (8–10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-2"><span class="exercise-text">Chest press (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-3"><span class="exercise-text">Chest fly berat + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-4"><span class="exercise-text">Superset incline curl berat + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-5"><span class="exercise-text">Hammer curl (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-6"><span class="exercise-text">Superset wrist curl + reverse wrist curl + reverse EZ (3 set)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-7"><span class="exercise-text">Hanging leg raises (3 × 12)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="wednesday-8"><span class="exercise-text">Side stretch (3 × 30 detik/sisi)</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+      <!-- Kamis -->
+      <div class="day" data-day="thursday">
+        <h3>📅 Kamis – Back, Traps, Tricep + Stretch <span class="day-progress" id="thursday-progress">0/9</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-1"><span class="exercise-text">Pull-up neutral grip (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-2"><span class="exercise-text">Lat pulldown wide grip (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-3"><span class="exercise-text">Single arm cable row (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-4"><span class="exercise-text">Barbel/cable row (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-5"><span class="exercise-text">Dumbbell shrug (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-6"><span class="exercise-text">Tricep pushdown berat + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-7"><span class="exercise-text">Reverse tricep pushdown berat + 1 set ringan (failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-8"><span class="exercise-text">Face pull (3 × 12)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="thursday-9"><span class="exercise-text">Bridge pose (3 × 15)</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+      <!-- Jumat -->
+      <div class="day" data-day="friday">
+        <h3>📅 Jumat – Rest Day <span class="day-progress" id="friday-progress">0/1</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="friday-1"><span class="exercise-text">Istirahat: nutrisi, tidur, hidrasi. Opsional: jalan santai / stretching.</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+      <!-- Sabtu -->
+      <div class="day" data-day="saturday">
+        <h3>📅 Sabtu – Leg + Stretch <span class="day-progress" id="saturday-progress">0/8</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-1"><span class="exercise-text">Superset lunges > RDL > calf raises (8–10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-2"><span class="exercise-text">Bulgarian split squat (8–10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-3"><span class="exercise-text">Squat (8–10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-4"><span class="exercise-text">Leg extension (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-5"><span class="exercise-text">Leg press (10–12 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-6"><span class="exercise-text">Hip thrust (10–12 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-7"><span class="exercise-text">Side plank (3 × 45 detik/sisi)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="saturday-8"><span class="exercise-text">Skipping (3 × 1 menit)</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+      <!-- Minggu -->
+      <div class="day" data-day="sunday">
+        <h3>📅 Minggu – Chest, Shoulder + Stretch <span class="day-progress" id="sunday-progress">0/8</span></h3>
+        <ul class="exercise-list">
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-1"><span class="exercise-text">Incline bench press (8–10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-2"><span class="exercise-text">Chest press (10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-3"><span class="exercise-text">Chest fly (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-4"><span class="exercise-text">Shoulder press (10 × 3)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-5"><span class="exercise-text">Lateral raise (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-6"><span class="exercise-text">Reverse pec dec (3 set failure)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-7"><span class="exercise-text">Mountain climbers (3 × 40 detik)</span><button class="timer-trigger">⏱️</button></li>
+          <li class="exercise-item"><input type="checkbox" class="exercise-checkbox" data-exercise="sunday-8"><span class="exercise-text">Downward dog stretch (3 × 30 detik)</span><button class="timer-trigger">⏱️</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Intro typing ======
+    const texts=["Tuan JannZ","Welcome"];let ti=0,ci=0;const te=document.getElementById('text');
+    function renderText(str,len){ if(str==="Tuan JannZ"){ if(len<=5){return str.substring(0,len)} else { let before="Tuan "; let after=str.substring(5,len); return before+"<span class='glow'>"+after+"</span>"; } } else { return "<span class='glow'>"+str.substring(0,len)+"</span>"; } }
+    function type(){ if(ci<texts[ti].length){ci++; te.innerHTML=renderText(texts[ti],ci); setTimeout(type,140);} else { if(ti===0){ setTimeout(erase,1100);} } }
+    function erase(){ if(ci>0){ci--; te.innerHTML=renderText(texts[ti],ci); setTimeout(erase,80);} else { ti++; setTimeout(type,280);} }
+    type();
+
+    // ====== Global state ======
+    let timerInterval; let timerSeconds=0; let isTimerRunning=false;
+    let progressData = JSON.parse(localStorage.getItem('fitnessProgress')||'null') || {exercises:{},history:{},streak:0,totalCompleted:0,notified:{},lastKey:null};
+    function saveProgress(){ localStorage.setItem('fitnessProgress', JSON.stringify(progressData)); }
+
+    // ====== Timer ======
+    const timerWidget=document.getElementById('timerWidget');
+    const timerDisplay=document.getElementById('timerDisplay');
+    function showTimer(){ timerWidget.style.display='block'; }
+    function hideTimer(){ timerWidget.style.display='none'; resetTimer(); }
+    function setTimer(s){ timerSeconds=s; updateTimerDisplay(); }
+    function updateTimerDisplay(){ const m=Math.floor(timerSeconds/60),s=timerSeconds%60; timerDisplay.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+    function playDing(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.value=880; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(.001,ctx.currentTime); g.gain.exponentialRampToValueAtTime(.3,ctx.currentTime+.01); g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4); o.start(); o.stop(ctx.currentTime+.45);}catch(e){} }
+    function startTimer(){ if(timerSeconds<=0) return; isTimerRunning=true; startBtn.disabled=true; pauseBtn.disabled=false;
+      clearInterval(timerInterval);
+      timerInterval=setInterval(()=>{ timerSeconds--; updateTimerDisplay();
+        if(timerSeconds<=0){ clearInterval(timerInterval); isTimerRunning=false; startBtn.disabled=false; pauseBtn.disabled=true;
+          if(Notification.permission==='granted'){ new Notification('Timer Completed!',{body:'Set selesai. Next set!'}); } playDing();
+          timerWidget.classList.add('goal-achieved'); setTimeout(()=>timerWidget.classList.remove('goal-achieved'),600);
+        }
+      },1000);
+    }
+    function pauseTimer(){ clearInterval(timerInterval); isTimerRunning=false; startBtn.disabled=false; pauseBtn.disabled=true; }
+    function resetTimer(){ clearInterval(timerInterval); timerSeconds=0; isTimerRunning=false; startBtn.disabled=false; pauseBtn.disabled=true; updateTimerDisplay(); }
+    const startBtn=document.getElementById('startTimer'), pauseBtn=document.getElementById('pauseTimer'), resetBtn=document.getElementById('resetTimer'), closeBtn=document.getElementById('closeTimer');
+    startBtn.onclick=startTimer; pauseBtn.onclick=pauseTimer; resetBtn.onclick=resetTimer; closeBtn.onclick=hideTimer;
+    document.querySelectorAll('[data-quick]').forEach(b=> b.addEventListener('click',()=>{ setTimer(parseInt(b.dataset.quick,10)); showTimer(); }));
+    document.addEventListener('click',e=>{ if(e.target.classList.contains('timer-trigger')){ showTimer(); }});
+
+    // ====== Goals & Progress ======
+    const DAILY_GOAL=5, WEEKLY_GOAL=25;
+    const elToday=document.getElementById('todayProgress'), elWeeklyPct=document.getElementById('weeklyProgress'), elStreak=document.getElementById('currentStreak'), elTotal=document.getElementById('totalCompleted'), barWeekly=document.getElementById('weeklyProgressBar');
+    function getDateKey(d=new Date()){ const tz=d.getTimezoneOffset()*60000; return new Date(d.getTime()-tz).toISOString().slice(0,10); }
+    function updateHistoryForToday(count){ const key=getDateKey(); progressData.history[key]=count; }
+    function updateGoals(todayCompleted,totalCompleted){
+      const dailyLabel=document.getElementById('dailyGoalLabel'); const weeklyLabel=document.getElementById('weeklyGoalLabel');
+      elToday.textContent=todayCompleted;
+      const dailyCard=document.getElementById('dailyGoalCard'); const weeklyCard=document.getElementById('weeklyGoalCard');
+      if(todayCompleted>=DAILY_GOAL){ dailyCard.classList.add('goal-achieved'); dailyLabel.textContent='✅ Daily goal tercapai'; notifyOnce('dailyGoal','Daily Goal Achieved!','Keren! Target harian beres 💪'); }
+      else { dailyCard.classList.remove('goal-achieved'); dailyLabel.textContent=''; }
+      const weeklyStatus=document.getElementById('weeklyGoalStatus'); weeklyStatus.textContent = `${totalCompleted}/${WEEKLY_GOAL}`;
+      if(totalCompleted>=WEEKLY_GOAL){ weeklyCard.classList.add('goal-achieved'); weeklyLabel.textContent='✅ Weekly goal tercapai'; notifyOnce('weeklyGoal','Weekly Goal Achieved!','Mantap! Target mingguan tembus 🚀'); }
+      else { weeklyCard.classList.remove('goal-achieved'); weeklyLabel.textContent=''; }
+    }
+    function notifyOnce(key,title,body){ progressData.notified=progressData.notified||{}; if(progressData.notified[key]) return; progressData.notified[key]=true; saveProgress(); if('Notification'in window && Notification.permission==='granted'){ new Notification(title,{body}); } }
+
+    function updateDayProgress(day){
+      const box=document.querySelector(`[data-day="${day}"]`); if(!box) return {completed:0,total:0};
+      const cbs=box.querySelectorAll('.exercise-checkbox'); const completed=box.querySelectorAll('.exercise-checkbox:checked').length; const total=cbs.length;
+      const label=document.getElementById(`${day}-progress`); if(label) label.textContent=`${completed}/${total}`;
+      return {completed,total};
+    }
+    function updateAllStats(){
+      let totalCompleted=0,totalExercises=0,todayCompleted=0;
+      const days=['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+      const todayIdx = (new Date().getDay()+6)%7; const todayName=days[todayIdx];
+      days.forEach(d=>{ const p=updateDayProgress(d); totalCompleted+=p.completed; totalExercises+=p.total; if(d===todayName) todayCompleted=p.completed; });
+      // Weekly pct
+      const pct = totalExercises? Math.round((totalCompleted/totalExercises)*100) : 0;
+      elWeeklyPct.textContent = pct+'%'; barWeekly.style.width=pct+'%';
+      // Streak (derive from history): if yesterday had >0 and today >0 → extend, else recompute longest separately
+      const key=getDateKey(); updateHistoryForToday(todayCompleted);
+      if(progressData.lastKey!==key){ // day turned
+        // maintain simple current streak based on consecutive days with count>0 ending today
+        let streak=0; let d=new Date(); while(true){ const k=getDateKey(d); if((progressData.history[k]||0)>0){ streak++; d.setDate(d.getDate()-1);} else break; }
+        progressData.streak = streak;
+        progressData.lastKey=key;
+      } else {
+        // same day, recompute current streak quickly
+        let streak=0; let d=new Date(); while(true){ const k=getDateKey(d); if((progressData.history[k]||0)>0){ streak++; d.setDate(d.getDate()-1);} else break; }
+        progressData.streak = streak;
+      }
+      elStreak.textContent = progressData.streak||0;
+      progressData.totalCompleted = totalCompleted;
+      elTotal.textContent = totalCompleted;
+      saveProgress();
+      // charts + goals + achievements
+      renderCharts(); updateGoals(todayCompleted,totalCompleted); renderAchievements();
+    }
+
+    // attach checkbox listeners + restore
+    function attachCheckboxListeners(){
+      document.querySelectorAll('.exercise-checkbox').forEach(cb=>{
+        if(progressData.exercises[cb.dataset.exercise]){ cb.checked=true; cb.closest('.exercise-item').classList.add('completed'); }
+        cb.addEventListener('change', function(){
+          const item=this.closest('.exercise-item');
+          if(this.checked){ progressData.exercises[this.dataset.exercise]=true; item.classList.add('completed'); item.classList.add('goal-achieved'); setTimeout(()=>item.classList.remove('goal-achieved'),600); }
+          else{ delete progressData.exercises[this.dataset.exercise]; item.classList.remove('completed'); }
+          updateAllStats();
+        });
+      });
+    }
+
+    // ====== Charts (vanilla canvas) ======
+    function clearCanvas(canvas){ const ctx=canvas.getContext('2d'); const dpr=window.devicePixelRatio||1; const rect=canvas.getBoundingClientRect(); canvas.width=Math.max(300, rect.width*dpr); canvas.height=Math.max(200, rect.height*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,canvas.width,canvas.height); return ctx; }
+    function getLastNDays(n){ const labels=[],values=[]; const short=['Min','Sen','Sel','Rab','Kam','Jum','Sab']; for(let i=n-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=getDateKey(d); labels.push(short[d.getDay()]+' '+d.getDate()); values.push(progressData.history[k]||0);} return {labels,values}; }
+    function getLastNDates(n){ const labels=[],values=[]; for(let i=n-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=getDateKey(d); labels.push(d.getDate()); values.push(progressData.history[k]||0);} return {labels,values}; }
+    function drawBarChart(canvas,labels,values){ const ctx=clearCanvas(canvas); const width=canvas.clientWidth; const height=canvas.clientHeight; const pad=28; const w=width-pad*2; const h=height-pad*2; const max=Math.max(1,...values); const space=w/values.length; const bw=space*.6;
+      ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.beginPath(); ctx.moveTo(pad,pad); ctx.lineTo(pad,pad+h); ctx.lineTo(pad+w,pad+h); ctx.stroke();
+      for(let i=0;i<values.length;i++){ const val=values[i]; const x=pad+i*space+(space-bw)/2; const bh=(val/max)*(h-10); const y=pad+h-bh; const grad=ctx.createLinearGradient(0,y,0,y+bh); grad.addColorStop(0,'#00ffff'); grad.addColorStop(1,'#2e8bff'); ctx.fillStyle=grad; ctx.fillRect(x,y,bw,bh);
+        ctx.fillStyle='#fff'; ctx.font='12px Arial'; ctx.textAlign='center'; ctx.fillText(val, x+bw/2, y-4); ctx.fillStyle='rgba(255,255,255,.8)'; ctx.save(); ctx.translate(x+bw/2, pad+h+14); ctx.rotate(-Math.PI*.25); ctx.fillText(labels[i],0,0); ctx.restore(); }
+    }
+    function drawLineChart(canvas,labels,values){ const ctx=clearCanvas(canvas); const width=canvas.clientWidth; const height=canvas.clientHeight; const pad=28; const w=width-pad*2; const h=height-pad*2; const max=Math.max(1,...values);
+      ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.beginPath(); ctx.moveTo(pad,pad); ctx.lineTo(pad,pad+h); ctx.lineTo(pad+w,pad+h); ctx.stroke();
+      ctx.beginPath(); ctx.lineWidth=2; const grad=ctx.createLinearGradient(0,0,width,0); grad.addColorStop(0,'#2e8bff'); grad.addColorStop(1,'#00ffff'); ctx.strokeStyle=grad;
+      for(let i=0;i<values.length;i++){ const x=pad+(i/(values.length-1))*w; const y=pad+h-(values[i]/max)*(h-10); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
+      for(let i=0;i<values.length;i++){ const x=pad+(i/(values.length-1))*w; const y=pad+h-(values[i]/max)*(h-10); ctx.fillStyle='#00ffff'; ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#fff'; ctx.font='11px Arial'; ctx.textAlign='center'; ctx.fillText(values[i],x,y-8); ctx.fillStyle='rgba(255,255,255,.8)'; ctx.fillText(labels[i],x,pad+h+14); }
+    }
+    function renderWeeklyChart(){ const {labels,values}=getLastNDays(7); drawBarChart(document.getElementById('weeklyCanvas'),labels,values); }
+    function renderMonthlyChart(){ const {labels,values}=getLastNDates(30); drawLineChart(document.getElementById('monthlyCanvas'),labels,values); }
+    function renderCharts(){ renderWeeklyChart(); renderMonthlyChart(); }
+    document.getElementById('tabWeekly').onclick=()=>{ document.getElementById('tabWeekly').classList.add('active'); document.getElementById('tabMonthly').classList.remove('active'); document.getElementById('weeklyCanvas').style.display='block'; document.getElementById('monthlyCanvas').style.display='none'; renderWeeklyChart(); };
+    document.getElementById('tabMonthly').onclick=()=>{ document.getElementById('tabMonthly').classList.add('active'); document.getElementById('tabWeekly').classList.remove('active'); document.getElementById('weeklyCanvas').style.display='none'; document.getElementById('monthlyCanvas').style.display='block'; renderMonthlyChart(); };
+
+    // ====== Achievements ======
+    function sameMonth(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth(); }
+    function calcLongestStreakFromHistory(hist){
+      const dates = Object.entries(hist).filter(([d,c])=>(c||0)>0).map(([d])=>new Date(d+'T00:00:00')).sort((a,b)=>a-b);
+      let longest=0,current=0, prev=null;
+      for(const d of dates){ if(!prev){ current=1; longest=1; prev=d; continue; } const diff=(d-prev)/(1000*60*60*24); current = Math.abs(diff-1)<1e-9 ? current+1 : 1; longest=Math.max(longest,current); prev=d; }
+      // include current streak value as fallback
+      return Math.max(longest, progressData.streak||0);
+    }
+    function getStats(){
+      const total = progressData.totalCompleted||0;
+      const completedDaysThisMonth = new Set(Object.entries(progressData.history||{}).filter(([k,v])=>(v||0)>0 && sameMonth(new Date(k),new Date())).map(([k])=>k)).size;
+      const longestStreak = calcLongestStreakFromHistory(progressData.history||{});
+      return { total, completedDaysThisMonth, longestStreak };
+    }
+    const ACHIEVEMENTS=[
+      { id:'streak7',  name:'7 Hari Beruntun',               target:7,   getValue:s=>s.longestStreak, icon:'🔥' },
+      { id:'streak30', name:'30 Hari Beruntun',              target:30,  getValue:s=>s.longestStreak, icon:'⚡' },
+      { id:'100total', name:'100 Latihan Total',             target:100, getValue:s=>s.total,         icon:'💪' },
+      { id:'month20',  name:'1 Bulan Konsisten (≥20 hari)',  target:20,  getValue:s=>s.completedDaysThisMonth, icon:'🚀' },
+    ];
+    function renderAchievements(){
+      const stats=getStats(); const wrap=document.getElementById('badge-list'); wrap.innerHTML='';
+      ACHIEVEMENTS.forEach(a=>{
+        const val=a.getValue(stats); const pct=Math.min(100, Math.round((val/a.target)*100)); const unlocked=val>=a.target;
+        const div=document.createElement('div'); div.className='badge'+(unlocked?'':' locked');
+        div.innerHTML=`<h4>${a.icon} ${a.name}</h4>
+          <div class="progress"><div style="width:${pct}%"></div></div>
+          <p style="margin:6px 0 0;font-size:.9rem">${val}/${a.target}</p>
+          ${unlocked?'<span style="font-size:.85rem;color:#16a34a">Unlocked 🎉</span>':'<span style="font-size:.85rem">Progressing…</span>'}`;
+        wrap.appendChild(div);
+      });
+      checkNewUnlocks(stats);
+    }
+    function checkNewUnlocks(stats){
+      const unlocked = JSON.parse(localStorage.getItem('unlockedBadges')||'[]');
+      const newly = ACHIEVEMENTS.filter(a=>a.getValue(stats)>=a.target && !unlocked.includes(a.id));
+      if(newly.length){ localStorage.setItem('unlockedBadges', JSON.stringify([...unlocked, ...newly.map(n=>n.id)])); alert('🎉 Achievement unlocked: '+newly.map(n=>n.name).join(', ')); }
+    }
+
+    // ====== Reminder ======
+    async function requestNotifPermission(){ if(!('Notification' in window)) { alert('Browser tidak mendukung Notification API'); return false; } const perm=await Notification.requestPermission(); return perm==='granted'; }
+    function showReminderNotification(){ const title='Waktunya latihan, JannZ Sync 💪'; const options={ body:'Ayo gas 1 sesi sekarang!' }; if('serviceWorker' in navigator){ navigator.serviceWorker.ready.then(reg=> reg.showNotification(title, options)); } else if(Notification.permission==='granted'){ new Notification(title,options); } }
+    function scheduleLocalReminder(){ const time=document.getElementById('reminderTime').value; localStorage.setItem('reminderTime',time);
+      if(window.__rem){ clearInterval(window.__rem); }
+      window.__rem=setInterval(()=>{ const [hh,mm]=time.split(':').map(Number); const now=new Date(); if(now.getHours()===hh && now.getMinutes()===mm && now.getSeconds()<6){ showReminderNotification(); } }, 10000);
+      document.getElementById('reminderStatus').textContent='Reminder aktif jam '+time;
+    }
+    document.getElementById('enableNotifBtn').addEventListener('click', async()=>{ if(await requestNotifPermission()){ scheduleLocalReminder(); } });
+    // restore reminder time
+    const savedTime=localStorage.getItem('reminderTime'); if(savedTime){ document.getElementById('reminderTime').value=savedTime; scheduleLocalReminder(); }
+
+    // ====== Journal ======
+    function loadJournal(){ return JSON.parse(localStorage.getItem('journal')||'{}'); }
+    function saveJournal(d){ localStorage.setItem('journal',JSON.stringify(d)); }
+    function renderJournal(){ const data=loadJournal(); const list=document.getElementById('journalList'); list.innerHTML=''; Object.keys(data).sort((a,b)=>new Date(b)-new Date(a)).forEach(date=>{ const div=document.createElement('div'); div.className='journal-item'; div.innerHTML=`<h4>${date}</h4><p>${(data[date]||'').replace(/[<>&]/g,s=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[s]))}</p>`; list.appendChild(div); }); }
+    document.getElementById('journalForm').addEventListener('submit', e=>{ e.preventDefault(); const d=document.getElementById('journalDate').value||getDateKey(); const t=document.getElementById('journalText').value.trim(); if(!t){return} const j=loadJournal(); j[d]=t; saveJournal(j); renderJournal(); e.target.reset(); document.getElementById('journalDate').value=getDateKey(); });
+    document.getElementById('journalDate').value=getDateKey(); renderJournal();
+
+    // ====== Export/Import/Reset ======
+    document.getElementById('exportBtn').onclick=()=>{ const data = {progressData, journal: loadJournal(), unlockedBadges: JSON.parse(localStorage.getItem('unlockedBadges')||'[]')}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='jannz_progress.json'; a.click(); URL.revokeObjectURL(url); };
+    document.getElementById('importInput').addEventListener('change', async(e)=>{ const file=e.target.files[0]; if(!file) return; const text=await file.text(); try{ const obj=JSON.parse(text); if(obj.progressData){ progressData=obj.progressData; saveProgress(); } if(obj.journal){ localStorage.setItem('journal', JSON.stringify(obj.journal)); } if(obj.unlockedBadges){ localStorage.setItem('unlockedBadges', JSON.stringify(obj.unlockedBadges)); } attachCheckboxListeners(); updateAllStats(); renderJournal(); alert('Import sukses ✅'); } catch(err){ alert('Gagal import: '+err.message); } e.target.value=''; });
+    document.getElementById('resetAllBtn').onclick=()=>{ if(confirm('Reset semua progres?')){ document.querySelectorAll('.exercise-checkbox').forEach(cb=>{cb.checked=false; cb.closest('.exercise-item').classList.remove('completed');}); progressData={exercises:{},history:{},streak:0,totalCompleted:0,notified:{},lastKey:null}; saveProgress(); localStorage.removeItem('unlockedBadges'); updateAllStats(); alert('Semua progres direset 🔄'); } };
+
+    // ====== Init ======
+    function restoreCheckboxes(){ document.querySelectorAll('.exercise-checkbox').forEach(cb=>{ cb.checked= !!progressData.exercises[cb.dataset.exercise]; if(cb.checked) cb.closest('.exercise-item').classList.add('completed'); }); }
+    function registerPWA(){ if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); } }
+    document.addEventListener('DOMContentLoaded', ()=>{
+      registerPWA(); restoreCheckboxes(); attachCheckboxListeners(); updateAllStats(); renderAchievements(); // initial render
+    });
+  </script>
+</body>
+</html>
